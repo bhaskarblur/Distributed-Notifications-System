@@ -1,2 +1,51 @@
+# Build directories
 /build
-build
+/out
+/target
+
+# IDE-specific directories
+/.idea
+*.iml
+*.iws
+*.ipr
+
+# VS Code settings
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Dependency directories
+/node_modules
+/.mvn
+
+# Gradle files
+.gradle/
+/build/
+
+# Environment and configuration
+*.env
+*.properties
+/secrets/
+
+# Generated files
+*.class
+*.jar
+*.war
+*.ear
+
+# Spring Boot configuration
+/target/
+spring.log
+
+# Docker
+docker-compose.override.yml
+.env
+
+# IntelliJ IDEA
+/.idea/
+/*.iml
