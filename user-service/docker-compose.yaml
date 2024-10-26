@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    networks:
+      - distributed-notis
+
+networks:
+  distributed-notis:

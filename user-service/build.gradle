@@ -6,7 +6,6 @@ plugins {
 }
 
 group = 'com.bhaskarblur'
-version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
@@ -24,19 +23,20 @@ ext {
 }
 
 dependencies {
-		implementation 'org.glassfish.jersey.core:jersey-common:3.0.2'
-		implementation 'org.springframework.boot:spring-boot-starter-validation'
-		// Jersey dependencies for enabling JAX-RS with Jakarta in Spring Boot
-		implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:3.0.0'
-		implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.0'
-		// Jakarta RESTful Web Services API
-		implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
+	implementation 'me.paulschwarz:spring-dotenv:2.5.4'
+	implementation 'org.glassfish.jersey.core:jersey-common:3.0.2'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Jersey dependencies for enabling JAX-RS with Jakarta in Spring Boot
+	implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:3.0.0'
+	implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.0'
+	// Jakarta RESTful Web Services API
+	implementation 'jakarta.ws.rs:jakarta.ws.rs-api:3.0.0'
 
-		// Jakarta Servlet API (optional, if you need HttpServletRequest)
-		implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+	// Jakarta Servlet API (optional, if you need HttpServletRequest)
+	implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 
-		// Spring Boot dependencies
-		implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Spring Boot dependencies
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// Jersey dependencies for Jakarta REST support
 	implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:3.0.0'
 	implementation 'org.glassfish.jersey.inject:jersey-hk2:3.0.0'
