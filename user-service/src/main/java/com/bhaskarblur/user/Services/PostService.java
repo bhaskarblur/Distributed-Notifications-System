@@ -1,8 +1,10 @@
 package com.bhaskarblur.user.Services;
 
 import com.bhaskarblur.user.Api.Dtos.CreatePostRequest;
+import com.bhaskarblur.user.Kafka.MessageProducer;
 import com.bhaskarblur.user.Models.PostModel;
 import com.bhaskarblur.user.Repositories.PostRepository;
+import com.google.gson.Gson;
 import jakarta.ws.rs.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,24 +15,31 @@ import org.springframework.web.server.ResponseStatusException;
 public class PostService {
 
     private final PostRepository repository;
-
+    private final MessageProducer kafkaMessageProducer;
+    private Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
 
     @Autowired
-    public PostService(PostRepository repository) {
+    public PostService(PostRepository repository, MessageProducer kafkaMessageProducer) {
         this.repository = repository;
+        this.kafkaMessageProducer = kafkaMessageProducer;
+    }
+
+    @Autowired
+    public void SetGson(Gson gson) {
+        this.gson = gson;
     }
 
     public PostModel createPost(CreatePostRequest postRequest) throws Exception {
         try {
             logger.info("Creating post for user: {}", postRequest.getUser_id());
 
-            logger.debug("Post details: title={}, content={}, description={}",
+            logger.info("Post details: title={}, content={}, description={}",
                     postRequest.getTitle(), postRequest.getContent(), postRequest.getDescription());
 
             // Mocked error return;
-            if (postRequest.getUser_id().contains("1234")) {
+            if (postRequest.getUser_id().contains("fake")) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         String.format("%s is a fake user, use a real one", postRequest.getUser_id())
@@ -41,6 +50,14 @@ public class PostService {
                     .setTitle(postRequest.getTitle())
                     .setContent(postRequest.getContent())
                     .setDescription(postRequest.getDescription());
+
+
+            // 1. Convert post to JSON String using Gson
+            String postJsonString = gson.toJson(post);
+            logger.info("Sending post to Kafka: {}", postJsonString);
+
+            // 2. Send to Kafka Topic via MessageProducer
+            kafkaMessageProducer.sendMessage("notification", postJsonString);
 
             return repository.createPost(post);
         }

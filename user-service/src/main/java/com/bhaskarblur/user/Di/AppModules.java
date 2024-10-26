@@ -1,7 +1,9 @@
 package com.bhaskarblur.user.Di;
 
+import com.bhaskarblur.user.Kafka.MessageProducer;
 import com.bhaskarblur.user.Repositories.PostRepository;
 import com.bhaskarblur.user.Services.PostService;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +19,13 @@ public class AppModules {
     }
 
     @Bean
-    public PostService injectPostService(PostRepository repository) {
+    public Gson injectGson() {
+        return new Gson();
+    }
+
+    @Bean
+    public PostService injectPostService(PostRepository repository, MessageProducer messageProducer) {
         logger.info("🚀 Initialized Post Service");
-        return new PostService(repository);
+        return new PostService(repository, messageProducer);
     }
 }
