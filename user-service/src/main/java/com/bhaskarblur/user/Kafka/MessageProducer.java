@@ -13,6 +13,7 @@ public class MessageProducer {
 
     @Async
     public void sendMessage(String topic, String message) {
+        // Produces message
         kafkaTemplate.send(topic, message);
     }
 
