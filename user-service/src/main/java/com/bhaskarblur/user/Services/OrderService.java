@@ -47,8 +47,8 @@ public class OrderService {
 
             // Prepare the order payload for Kafka message
             Map<String, Object> orderPayload = new HashMap<>();
-            orderPayload.put("user_id", orderRequest.getUser_id());
-            orderPayload.put("store_id", orderRequest.getStore_id());
+            orderPayload.put("userId", orderRequest.getUser_id());
+            orderPayload.put("storeId", orderRequest.getStore_id());
             orderPayload.put("items", orderRequest.getItems());
 
             // Convert payload to JSON string using Gson
@@ -59,7 +59,7 @@ public class OrderService {
             kafkaMessageProducer.sendMessage("order", orderJsonString);
 
             // Return the order payload or acknowledgment as confirmation
-            return orderPayload;
+            return orderRequest;
 
         } catch (Exception e) {
             throw new RuntimeException("Error creating order: " + e.getMessage(), e);

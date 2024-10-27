@@ -20,10 +20,6 @@ public class CreateOrderRequest {
     @Valid
     private List<Item> items;
 
-    @NotNull(message = "Creation time is required")
-    private LocalDateTime createdAt;
-
-
     // Getters and Setters
 
     public String getUser_id() {
@@ -50,13 +46,6 @@ public class CreateOrderRequest {
         this.items = items;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     // Inner Item class to represent items in the order
     public static class Item {

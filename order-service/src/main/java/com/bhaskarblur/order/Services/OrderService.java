@@ -64,7 +64,6 @@ public class OrderService implements IKafkaConsumers {
             // 2. Send to Kafka Topic via MessageProducer
             kafkaMessageProducer.sendMessage("notification", notificationJsonString);
 
-
         } catch (Exception e) {
             throw new RuntimeException("Error creating order: " + e.getMessage(), e);
         }
