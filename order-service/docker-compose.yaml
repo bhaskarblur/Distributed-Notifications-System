@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  notification-service:
+  order-service:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - PORT=3002
+      - PORT=3003
     ports:
-      - "3002:3002"
+      - "3003:3003"
     networks:
       - distributed-notis
     depends_on:
