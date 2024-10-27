@@ -38,7 +38,7 @@ The monorepo is organized as follows:
 
 ### Project Structure
 distributed-notification-system/
-`
+
 ├── user-service/
 │   ├── src/
 │   ├── Dockerfile
@@ -53,7 +53,7 @@ distributed-notification-system/
 │   └── application.yml
 ├── docker-compose.yml
 └── README.md
-`
+
 
 ### Contributing
   - Fork the Repository
