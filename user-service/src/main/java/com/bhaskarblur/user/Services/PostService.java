@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PostService {
 
     private final PostRepository repository;
@@ -52,12 +55,19 @@ public class PostService {
                     .setDescription(postRequest.getDescription());
 
 
-            // 1. Convert post to JSON String using Gson
-            String postJsonString = gson.toJson(post);
-            logger.info("Sending post to Kafka: {}", postJsonString);
+            // Manually set each property of post to notificationPayload
+            Map<String, Object> notificationPayload = new HashMap<>();
+            notificationPayload.put("type", "POST");
+            notificationPayload.put("userId", post.getUserId());
+            notificationPayload.put("title", post.getTitle());
+            notificationPayload.put("description", post.getDescription());
+
+            // Convert notification payload to JSON String using Gson
+            String notificationJsonString = gson.toJson(notificationPayload);
+            logger.info("Sending notification to Kafka: {}", notificationJsonString);
 
             // 2. Send to Kafka Topic via MessageProducer
-            kafkaMessageProducer.sendMessage("notification", postJsonString);
+            kafkaMessageProducer.sendMessage("notification", notificationJsonString);
 
             return repository.createPost(post);
         }

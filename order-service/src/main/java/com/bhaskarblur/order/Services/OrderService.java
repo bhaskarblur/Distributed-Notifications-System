@@ -1,66 +1,90 @@
 package com.bhaskarblur.order.Services;
 
 import com.bhaskarblur.order.Api.Dtos.CreateOrderRequest;
-import com.bhaskarblur.order.Kafka.MessageProducer;
+import com.bhaskarblur.order.Kafka.IKafkaConsumers;
+import com.bhaskarblur.order.Kafka.MessageConsumer;
+import com.bhaskarblur.order.Models.OrderModel;
 import com.bhaskarblur.order.Repositories.OrderRepository;
+import com.bhaskarblur.order.Kafka.MessageProducer;
 import com.google.gson.Gson;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-public class OrderService {
+import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Service
+public class OrderService implements IKafkaConsumers {
 
     private final OrderRepository repository;
     private final MessageProducer kafkaMessageProducer;
+    private final MessageConsumer kafkaMessageConsumer;
     private Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
-
     @Autowired
-    public OrderService(OrderRepository repository, MessageProducer kafkaMessageProducer) {
+    public OrderService(OrderRepository repository, MessageProducer kafkaMessageProducer, MessageConsumer kafkaMessageConsumer) {
         this.repository = repository;
         this.kafkaMessageProducer = kafkaMessageProducer;
+        this.kafkaMessageConsumer = kafkaMessageConsumer;
+        kafkaMessageConsumer.subscribeToOrders(this);
     }
 
     @Autowired
-    public void SetGson(Gson gson) {
+    public void setGson(Gson gson) {
         this.gson = gson;
     }
 
-    public PostModel createPost(CreateOrderRequest postRequest) throws Exception {
+    private void createOrder(String orderRequest) {
         try {
-            logger.info("Creating post for user: {}", postRequest.getUser_id());
+            OrderModel orderModel = gson.fromJson(orderRequest, OrderModel.class);
 
-            logger.info("Post details: title={}, content={}, description={}",
-                    postRequest.getTitle(), postRequest.getContent(), postRequest.getDescription());
+            logger.info("Received createOrder Request: {}", orderModel.getUserId());
 
-            // Mocked error return;
-            if (postRequest.getUser_id().contains("fake")) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        String.format("%s is a fake user, use a real one", postRequest.getUser_id())
-                );
-            }
-            PostModel post = new PostModel()
-                    .setUserId(postRequest.getUser_id())
-                    .setTitle(postRequest.getTitle())
-                    .setContent(postRequest.getContent())
-                    .setDescription(postRequest.getDescription());
+            orderModel.setCreatedAt(new Date());
+            orderModel = repository.createOrder(orderModel);
 
+            logger.info("Saved Order ID: {}", orderModel.getId());
 
-            // 1. Convert post to JSON String using Gson
-            String postJsonString = gson.toJson(post);
-            logger.info("Sending post to Kafka: {}", postJsonString);
+            // Manually set each property of post to notificationPayload
+            Map<String, Object> notificationPayload = new HashMap<>();
+            notificationPayload.put("type", "ORDER");
+            notificationPayload.put("userId", orderModel.getUserId());
+            notificationPayload.put("title", "Order placed successfully");
+            notificationPayload.put("description", "Your order has been placed at "+ orderModel.getCreatedAt().toString());
+
+            // Convert notification payload to JSON String using Gson
+            String notificationJsonString = gson.toJson(notificationPayload);
+            logger.info("Sending notification to Kafka: {}", notificationJsonString);
 
             // 2. Send to Kafka Topic via MessageProducer
-            kafkaMessageProducer.sendMessage("notification", postJsonString);
+            kafkaMessageProducer.sendMessage("notification", notificationJsonString);
 
-            return repository.createPost(post);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating order: " + e.getMessage(), e);
         }
-        catch (Exception e) {
-            throw new RuntimeException("Error creating post: " + e.getMessage(), e);
+    }
+
+    @Override
+    public void Notify(String topic, String message) {
+        try {
+            createOrder(message);
+        } catch (Exception e) {
+            logger.error("Notification Service message: {} threw error: {}", topic, e.getMessage());
         }
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        kafkaMessageConsumer.unSubscribeToOrders(this);
+        logger.info("Unsubscribed from orders on service shutdown");
     }
 }

@@ -1,5 +1,6 @@
 package com.bhaskarblur.order.Di;
 
+import com.bhaskarblur.order.Kafka.MessageConsumer;
 import com.bhaskarblur.order.Kafka.MessageProducer;
 import com.bhaskarblur.order.Repositories.OrderRepository;
 import com.bhaskarblur.order.Services.OrderService;
@@ -12,11 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppModules {
     private static final Logger logger = LoggerFactory.getLogger(AppModules.class);
-    @Bean
-    public OrderRepository injectPostRepository() {
-        logger.info("🚀 Initialized Post Repository");
-        return new OrderRepository();
-    }
 
     @Bean
     public Gson injectGson() {
@@ -24,8 +20,8 @@ public class AppModules {
     }
 
     @Bean
-    public OrderService injectPostService(OrderRepository repository, MessageProducer messageProducer) {
-        logger.info("🚀 Initialized Post Service");
-        return new OrderService(repository, messageProducer);
+    public OrderService injectPostService(OrderRepository repository, MessageProducer messageProducer, MessageConsumer messageConsumer) {
+        logger.info("🚀 Initialized Order Service");
+        return new OrderService(repository, messageProducer, messageConsumer);
     }
 }
