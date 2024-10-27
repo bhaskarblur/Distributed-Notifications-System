@@ -1,32 +1,39 @@
 package com.bhaskarblur.notification.Models;
 
-import java.time.LocalDateTime;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.data.mongodb.core.mapping.FieldType;
+
+import java.util.Date;
 import java.util.UUID;
 
+@Document(collection = "notifications")
 public class NotificationModel {
 
+    @MongoId(FieldType.OBJECT_ID)
     private String id;
+
     private String userId;
     private String title;
     private String description;
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
-    // Constructor to auto-generate an ID and set createdAt
+    public NotificationModel() {}
     public NotificationModel(String userId, String title, String description) {
         this.id = UUID.randomUUID().toString(); // Generate a unique ID
         this.userId = userId;
         this.title = title;
         this.description = description;
-        this.createdAt = LocalDateTime.now(); // Set creation time to now
+        this.createdAt = new Date();
     }
 
-    // Optional constructor for full control over properties
-    public NotificationModel(String id, String userId, String title, String description, LocalDateTime createdAt) {
+    public NotificationModel(String id, String userId, String title, String description, Date createdAt) {
         this.id = id != null ? id : UUID.randomUUID().toString(); // Use provided ID or generate one
         this.userId = userId;
         this.title = title;
         this.description = description;
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now(); // Use provided date or set to now
+        this.createdAt = createdAt != null ? createdAt : new Date(); // Use provided date or set to now
     }
 
     // Getters and Setters
@@ -63,11 +70,11 @@ public class NotificationModel {
         this.description = description;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }
