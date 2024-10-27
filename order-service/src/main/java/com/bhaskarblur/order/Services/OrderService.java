@@ -45,6 +45,7 @@ public class OrderService implements IKafkaConsumers {
             logger.info("Received createOrder Request: {}", orderModel.getUserId());
 
             orderModel.setCreatedAt(new Date());
+            orderModel.setStatus("CREATED");
             orderModel = repository.createOrder(orderModel);
 
             logger.info("Saved Order ID: {}", orderModel.getId());

@@ -1,5 +1,6 @@
 package com.bhaskarblur.user.Services;
 
+import com.bhaskarblur.user.Api.Dtos.CreateOrderRequest;
 import com.bhaskarblur.user.Api.Dtos.CreatePostRequest;
 import com.bhaskarblur.user.Kafka.MessageProducer;
 import com.bhaskarblur.user.Models.PostModel;
@@ -31,45 +32,37 @@ public class OrderService {
         this.gson = gson;
     }
 
-    public Object createOrder(CreatePostRequest postRequest) throws Exception {
+    public Object createOrder(CreateOrderRequest orderRequest) {
         try {
-            logger.info("Creating post for user: {}", postRequest.getUser_id());
+            logger.info("Creating order for user: {}", orderRequest.getUser_id());
+            logger.info("Order details: items={}", orderRequest.getItems());
 
-            logger.info("Post details: title={}, content={}, description={}",
-                    postRequest.getTitle(), postRequest.getContent(), postRequest.getDescription());
-
-            // Mocked error return;
-            if (postRequest.getUser_id().contains("fake")) {
+            // Check if the user ID is invalid
+            if (orderRequest.getUser_id().contains("fake")) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
-                        String.format("%s is a fake user, use a real one", postRequest.getUser_id())
+                        String.format("%s is a fake user, use a real one", orderRequest.getUser_id())
                 );
             }
-            PostModel post = new PostModel()
-                    .setUserId(postRequest.getUser_id())
-                    .setTitle(postRequest.getTitle())
-                    .setContent(postRequest.getContent())
-                    .setDescription(postRequest.getDescription());
 
+            // Prepare the order payload for Kafka message
+            Map<String, Object> orderPayload = new HashMap<>();
+            orderPayload.put("user_id", orderRequest.getUser_id());
+            orderPayload.put("store_id", orderRequest.getStore_id());
+            orderPayload.put("items", orderRequest.getItems());
 
-            // Manually set each property of post to notificationPayload
-            Map<String, Object> notificationPayload = new HashMap<>();
-            notificationPayload.put("type", "POST");
-            notificationPayload.put("userId", post.getUserId());
-            notificationPayload.put("title", post.getTitle());
-            notificationPayload.put("description", post.getDescription());
+            // Convert payload to JSON string using Gson
+            String orderJsonString = gson.toJson(orderPayload);
+            logger.info("Sending order to Kafka: {}", orderJsonString);
 
-            // Convert notification payload to JSON String using Gson
-            String notificationJsonString = gson.toJson(notificationPayload);
-            logger.info("Sending notification to Kafka: {}", notificationJsonString);
+            // Send the JSON payload to Kafka
+            kafkaMessageProducer.sendMessage("order", orderJsonString);
 
-            // 2. Send to Kafka Topic via MessageProducer
-            kafkaMessageProducer.sendMessage("notification", notificationJsonString);
+            // Return the order payload or acknowledgment as confirmation
+            return orderPayload;
 
-            return repository.createPost(post);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Error creating post: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating order: " + e.getMessage(), e);
         }
     }
 }

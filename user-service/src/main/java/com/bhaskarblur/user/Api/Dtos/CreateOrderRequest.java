@@ -23,9 +23,6 @@ public class CreateOrderRequest {
     @NotNull(message = "Creation time is required")
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Order status is required")
-    @Size(min = 3, max = 20, message = "Status must be between 3 and 20 characters")
-    private String status;
 
     // Getters and Setters
 
@@ -59,14 +56,6 @@ public class CreateOrderRequest {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     // Inner Item class to represent items in the order
