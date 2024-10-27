@@ -1,6 +1,5 @@
 package com.bhaskarblur.notification.Services;
 
-
 import com.bhaskarblur.notification.Kafka.IKafkaConsumers;
 import com.bhaskarblur.notification.Kafka.MessageConsumer;
 import com.bhaskarblur.notification.Models.NotificationModel;
@@ -9,6 +8,9 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.PreDestroy;
 
 public class NotificationService implements IKafkaConsumers {
 
@@ -18,10 +20,9 @@ public class NotificationService implements IKafkaConsumers {
     private final MessageConsumer messageConsumer;
 
     @Autowired
-    public void SetGson(Gson gson) {
+    public void setGson(Gson gson) {
         this.gson = gson;
     }
-
 
     @Autowired
     public NotificationService(NotificationRepository repository, MessageConsumer messageConsumer) {
@@ -34,7 +35,6 @@ public class NotificationService implements IKafkaConsumers {
 
     public void saveNotification(String notificationBody) throws Exception {
         try {
-
             NotificationModel notificationModel = gson.fromJson(notificationBody, NotificationModel.class);
 
             logger.info("Received saveNotificationRequest: {}", notificationModel.getTitle());
@@ -51,9 +51,15 @@ public class NotificationService implements IKafkaConsumers {
     @Override
     public void Notify(String topic, String message) {
         try {
-        saveNotification(message);
-    } catch (Exception e) {
+            saveNotification(message);
+        } catch (Exception e) {
             logger.error("Notification Service message: {} threw error: {}", topic, e.getMessage());
+        }
     }
+
+    @PreDestroy
+    public void cleanup() {
+        messageConsumer.unSubscribeToNotifications(this);
+        logger.info("Unsubscribed from notifications on service shutdown");
     }
 }

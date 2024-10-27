@@ -29,6 +29,10 @@ public class MessageConsumer {
         consumers.add(consumer);
     }
 
+    public void unSubscribeToNotifications(IKafkaConsumers consumer) {
+        logger.info("👋 Removing Consumer from consumers topic: {} , groupId {}", topic, groupId);
+        consumers.remove(consumer);
+    }
     @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}")
     public void listen(String message) {
         logger.info("Received message on topic {}: {}", topic, message);
