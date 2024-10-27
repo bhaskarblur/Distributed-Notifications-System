@@ -19,7 +19,7 @@ The monorepo is organized as follows:
 - **Kafka**: Acts as the message broker for asynchronous communication.
 - **MongoDB**: Stores notifications, supporting CRUD operations.
 
-## Technology Stack
+## Technology Stack (Minimum)
 
 - **Java 17**
 - **Spring Boot 3.x**
