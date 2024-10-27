@@ -20,7 +20,7 @@ public class AppModules {
     }
 
     @Bean
-    public OrderService injectPostService(OrderRepository repository, MessageProducer messageProducer, MessageConsumer messageConsumer) {
+    public OrderService injectOrderService(OrderRepository repository, MessageProducer messageProducer, MessageConsumer messageConsumer) {
         logger.info("🚀 Initialized Order Service");
         return new OrderService(repository, messageProducer, messageConsumer);
     }

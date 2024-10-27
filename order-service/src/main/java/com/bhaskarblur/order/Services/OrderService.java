@@ -1,6 +1,5 @@
 package com.bhaskarblur.order.Services;
 
-import com.bhaskarblur.order.Api.Dtos.CreateOrderRequest;
 import com.bhaskarblur.order.Kafka.IKafkaConsumers;
 import com.bhaskarblur.order.Kafka.MessageConsumer;
 import com.bhaskarblur.order.Models.OrderModel;
@@ -11,13 +10,11 @@ import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -72,6 +69,18 @@ public class OrderService implements IKafkaConsumers {
             throw new RuntimeException("Error creating order: " + e.getMessage(), e);
         }
     }
+
+
+    public List<OrderModel> getOrdersByUserId(String userId) throws Exception {
+        try {
+            logger.info("Received getOrdersByUserId Request: {}", userId);
+
+            return repository.findByUserId(userId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting notifications: " + e.getMessage(), e);
+        }
+    }
+
 
     @Override
     public void Notify(String topic, String message) {

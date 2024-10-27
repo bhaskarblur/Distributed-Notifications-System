@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/notifications")
+@RequestMapping("/api/v1/{userId}/notifications")
 @Validated
 public class NotificationController {
 
@@ -24,7 +24,7 @@ public class NotificationController {
         this.service = service;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping
     public ResponseEntity<ApiStandardResponse> getUserNotifications(
             @NotNull @PathVariable @NotBlank(message = "User ID is required")
             @Size(min = 3, max = 20, message = "User ID must be between 3 and 20 characters") String userId) throws Exception {
