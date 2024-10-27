@@ -23,7 +23,7 @@ services:
       - PORT=3003
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - ORDER_TOPIC=order
-      - MONGODB_URL=mongodb://localhost:27017/distributednotifications
+      - MONGODB_URL=mongodb://mongodb:27017/distributednotifications
     ports:
       - "3003:3003"
     networks:
@@ -39,13 +39,23 @@ services:
       - PORT=3002
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - NOTIFICATION_TOPIC=notification
-      - MONGODB_URL=mongodb://localhost:27017/distributednotifications
+      - MONGODB_URL=mongodb://mongodb:27017/distributednotifications
     ports:
       - "3002:3002"
     networks:
       - distributed-notis
     depends_on:
       - kafka
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE: distributednotifications
+    networks:
+      - distributed-notis
 
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6
