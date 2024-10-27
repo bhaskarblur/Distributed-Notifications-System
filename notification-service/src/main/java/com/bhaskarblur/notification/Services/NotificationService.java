@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
+import java.util.Date;
+import java.util.List;
 
 public class NotificationService implements IKafkaConsumers {
 
@@ -33,18 +35,29 @@ public class NotificationService implements IKafkaConsumers {
         messageConsumer.subscribeToNotifications(this);
     }
 
-    public void saveNotification(String notificationBody) throws Exception {
+    private void saveNotification(String notificationBody) throws Exception {
         try {
             NotificationModel notificationModel = gson.fromJson(notificationBody, NotificationModel.class);
 
-            logger.info("Received saveNotificationRequest: {}", notificationModel.getTitle());
+            logger.info("Received saveNotification Request: {}", notificationModel.getTitle());
 
-            notificationModel = repository.createNotification(notificationModel);
+            notificationModel.setCreatedAt(new Date());
+            notificationModel = repository.saveNotification(notificationModel);
 
             logger.info("Saved Notification ID: {}", notificationModel.getId());
 
         } catch (Exception e) {
             throw new RuntimeException("Error saving notification: " + e.getMessage(), e);
+        }
+    }
+
+    public List<NotificationModel> getNotificationsByUserId(String userId) throws Exception {
+        try {
+            logger.info("Received getNotificationsByUserId Request: {}", userId);
+
+            return repository.findByUserId(userId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error getting notifications: " + e.getMessage(), e);
         }
     }
 

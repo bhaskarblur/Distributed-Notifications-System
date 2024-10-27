@@ -1,14 +1,21 @@
 package com.bhaskarblur.notification.Repositories;
 
 import com.bhaskarblur.notification.Models.NotificationModel;
-import jakarta.validation.constraints.NotNull;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-public class NotificationRepository {
+import java.util.List;
 
-    public NotificationRepository() {}
+@Repository
+public interface NotificationRepository extends MongoRepository<NotificationModel, String> {
 
-    public NotificationModel createNotification(@NotNull NotificationModel notificationModel) {
-        // Mocked Database operation
-        return notificationModel.setId("noti-2024");
+    List<NotificationModel> findByUserId(String userId);
+
+    default NotificationModel saveNotification(NotificationModel notificationModel) {
+        return save(notificationModel); // `save` is provided by MongoRepository
+    }
+
+    default List<NotificationModel> getNotificationsByUserId(String userId) {
+        return findByUserId(userId);
     }
 }
