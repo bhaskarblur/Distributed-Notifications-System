@@ -1,4 +1,4 @@
-# Distributed Notification System
+# 🚀 Distributed Notification System
 
 This monorepo hosts a **Distributed Notification System** built with **Spring Boot**. The system allows distributed handling of notifications for multiple users, utilizing **Apache Kafka** for asynchronous communication and **MongoDB** for persisting notifications. The architecture is designed to be highly scalable, supporting multiple services such as **User Service** and **Order Service** that can trigger notifications across distributed environments.
 
