@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
+    image: bhaskarblur/user-service:latest
     environment:
       - PORT=3001
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -16,9 +14,7 @@ services:
       - kafka
 
   order-service:
-    build:
-      context: ./order-service
-      dockerfile: Dockerfile
+    image: bhaskarblur/order-service:latest
     environment:
       - PORT=3003
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -32,9 +28,7 @@ services:
       - kafka
 
   notification-service:
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+    image: bhaskarblur/notification-service:latest
     environment:
       - PORT=3002
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
@@ -59,6 +53,7 @@ services:
       - user-service
       - order-service
       - notification-service
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -68,11 +63,6 @@ services:
       - MONGO_INITDB_DATABASE=distributednotifications
     networks:
       - distributed-notis
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/distributednotifications --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
 
   zookeeper:
     image: wurstmeister/zookeeper:3.4.6

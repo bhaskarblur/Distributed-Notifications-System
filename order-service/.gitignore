@@ -29,7 +29,7 @@ Thumbs.db
 
 # Environment and configuration
 *.env
-*.properties
+#*.properties
 /secrets/
 
 # Generated files
