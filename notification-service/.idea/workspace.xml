@@ -5,18 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="585dd736-3a0e-41db-9499-29e68238d0a7" name="Changes" comment="feat: Logs for SSE">
-      <change afterPath="$PROJECT_DIR$/../order-service/src/main/java/com/bhaskarblur/order/Models/OrderMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose-swarm.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../order-service/src/main/java/com/bhaskarblur/order/Services/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../order-service/src/main/java/com/bhaskarblur/order/Services/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/checksums/checksums.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/.gradle/8.10.2/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Api/Dtos/CreateOrderRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Api/Dtos/CreateOrderRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Api/Dtos/CreatePostRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Api/Dtos/CreatePostRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Services/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Services/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Services/PostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user-service/src/main/java/com/bhaskarblur/user/Services/PostService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Api/Controllers/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Api/Controllers/NotificationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Services/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Services/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Services/iSSEInteractor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bhaskarblur/notification/Services/iSSEInteractor.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -245,6 +241,17 @@
     </task>
     <option name="localTasksCounter" value="4" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: notification sse update" />

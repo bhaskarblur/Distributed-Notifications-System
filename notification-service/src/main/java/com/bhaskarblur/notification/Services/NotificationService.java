@@ -48,6 +48,10 @@ public class NotificationService implements IKafkaConsumers {
 
             logger.info("Received saveNotification Request Txn: {}", notificationMessage.getTxnId());
 
+            if(!sseInteractor.hasTxmEmitter(notificationMessage.getTxnId())) {
+                logger.info("Not continuing the request as Txn emitter not found with the id: {}", notificationMessage.getTxnId());
+                return;
+            }
             notificationMessage.getNotificationModel().setCreatedAt(new Date());
             notificationMessage.setNotificationModel(repository.saveNotification(notificationMessage.getNotificationModel()));
 

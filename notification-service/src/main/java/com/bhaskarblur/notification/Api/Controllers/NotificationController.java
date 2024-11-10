@@ -21,17 +21,19 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/{userId}/notifications")
 @Validated
-@EnableScheduling
+
 public class NotificationController implements iSSEInteractor {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
-
     private final NotificationService service;
-    private final ConcurrentHashMap<String, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     @Autowired
     public NotificationController(NotificationService service) {
@@ -44,75 +46,69 @@ public class NotificationController implements iSSEInteractor {
     public ResponseEntity<ApiStandardResponse> getUserNotifications(
             @NotNull @PathVariable @NotBlank(message = "User ID is required")
             @Size(min = 3, max = 20, message = "User ID must be between 3 and 20 characters") String userId) throws Exception {
-        logger.debug("Fetching notifications for user ID: {}", userId);
         List<NotificationModel> notifications = service.getNotificationsByUserId(userId);
-        logger.debug("Notifications fetched for user ID: {}: {}", userId, notifications);
-        ApiStandardResponse response = new ApiStandardResponse(true, "Notifications fetched!", notifications);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(new ApiStandardResponse(true, "Notifications fetched!", notifications));
     }
 
-    @GetMapping("/stream-sse/{txnId}")
-    public SseEmitter streamSseEvents(@PathVariable String userId, @PathVariable String txnId) {
-        logger.debug("Starting SSE stream for txnId: {}", txnId);
-        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        this.emitters.put(txnId, emitter);
+    @GetMapping("/stream-sse")
+    public SseEmitter connectToSSE(@NotNull @PathVariable @NotBlank(message = "User ID is required")
+                                   @Size(min = 3, max = 20, message = "User ID must be between 3 and 20 characters") String userId, @RequestParam("txnId") String txnId) {
 
-        emitter.onCompletion(() -> {
-            emitters.remove(txnId);
-            logger.info("SSE stream completed for txnId: {}", txnId);
-        });
-        emitter.onTimeout(() -> {
-            emitters.remove(txnId);
-            logger.warn("SSE stream timed out for txnId: {}", txnId);
-        });
-        emitter.onError((e) -> {
-            emitters.remove(txnId);
-            logger.error("Error in SSE stream for txnId: {}", txnId, e);
-        });
+        SseEmitter emitter = new SseEmitter(300_000L);
+        sseEmitters.put(txnId, emitter);
 
+        // Remove emitter on completion, timeout, or error
+        emitter.onCompletion(() -> sseEmitters.remove(txnId));
+        emitter.onTimeout(() -> sseEmitters.remove(txnId));
+        emitter.onError(e -> sseEmitters.remove(txnId));
+
+        // Send initial connection confirmation
         try {
-            ApiStandardResponse response = new ApiStandardResponse(true, "Connection established with Transaction ID: " + txnId, null);
-            emitter.send(SseEmitter.event().name("INIT").data(response), MediaType.APPLICATION_JSON);
-            logger.debug("Connection established event sent for txnId: {}", txnId);
+            logger.info("Connected to SSE with txnId: {}", txnId);
+            ApiStandardResponse response = new ApiStandardResponse(
+                    true,
+                    "Connected to SSE for txnId: " + txnId,
+                    null
+            );
+            emitter.send(response);
         } catch (IOException e) {
             emitter.completeWithError(e);
-            logger.error("Error sending initial connection event for txnId: {}", txnId, e);
         }
+
+        // Optional: send heartbeat to keep connection active
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                emitter.send(SseEmitter.event().data(new ApiStandardResponse(
+                        true,
+                        "Sending connection alive heart-beat",
+                        null)));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                executor.shutdown(); // Shut down the heartbeat if connection fails
+            }
+        }, 0, 15, TimeUnit.SECONDS); // Ping every 15 seconds
 
         return emitter;
     }
 
-    @Scheduled(fixedRate = 10000)
-    public void sendHeartbeat() {
-        logger.debug("Sending heartbeat to all SSE emitters");
-        emitters.forEach((txnId, emitter) -> {
-            try {
-                ApiStandardResponse response = new ApiStandardResponse(true, "Sending connection heartbeat", null);
-                emitter.send(SseEmitter.event().name("HEARTBEAT").data(response), MediaType.APPLICATION_JSON);
-                logger.debug("Heartbeat sent for txnId: {}", txnId);
-            } catch (IOException e) {
-                emitters.remove(txnId);
-                emitter.completeWithError(e);
-                logger.error("Error sending heartbeat for txnId: {}", txnId, e);
-            }
-        });
+
+    @Override
+    public boolean hasTxmEmitter(String txnId) {
+        SseEmitter emitter = sseEmitters.get(txnId);
+        return emitter != null;
     }
 
     @Override
     public void updateSSE(String txnId, Object data) {
-        logger.debug("Updating SSE for txnId: {} with data: {}", txnId, data);
-        SseEmitter emitter = emitters.get(txnId);
+        SseEmitter emitter = sseEmitters.get(txnId);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event().name("UPDATE").data(data, MediaType.APPLICATION_JSON));
-                logger.debug("Update sent for txnId: {}", txnId);
             } catch (IOException e) {
                 emitter.completeWithError(e);
-                emitters.remove(txnId);
-                logger.error("Error updating SSE for txnId: {}", txnId, e);
+                sseEmitters.remove(txnId);
             }
-        } else {
-            logger.warn("No emitter found for txnId: {}", txnId);
         }
     }
 }

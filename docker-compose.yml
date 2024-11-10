@@ -31,7 +31,7 @@ services:
     depends_on:
       - kafka
 
-  notification-service:
+  notification-service1:
     build:
       context: ./notification-service
       dockerfile: Dockerfile
@@ -40,12 +40,47 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - NOTIFICATION_TOPIC=notification
       - MONGODB_URL=mongodb://mongodb:27017/distributednotifications
+      - KAFKA_CONSUMER_GROUP=notification-group-1
     ports:
-      - "3002:3002"
+      - "3002"
     networks:
       - distributed-notis
     depends_on:
       - kafka
+
+  notification-service2:
+      build:
+        context: ./notification-service
+        dockerfile: Dockerfile
+      environment:
+        - PORT=3002
+        - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+        - NOTIFICATION_TOPIC=notification
+        - MONGODB_URL=mongodb://mongodb:27017/distributednotifications
+        - KAFKA_CONSUMER_GROUP=notification-group-2
+      ports:
+        - "3002"
+      networks:
+        - distributed-notis
+      depends_on:
+        - kafka
+
+  notification-service3:
+      build:
+        context: ./notification-service
+        dockerfile: Dockerfile
+      environment:
+        - PORT=3002
+        - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+        - NOTIFICATION_TOPIC=notification
+        - MONGODB_URL=mongodb://mongodb:27017/distributednotifications
+        - KAFKA_CONSUMER_GROUP=notification-group-3
+      ports:
+        - "3002"
+      networks:
+        - distributed-notis
+      depends_on:
+        - kafka
 
   nginx:
     image: nginx:latest
@@ -58,7 +93,9 @@ services:
     depends_on:
       - user-service
       - order-service
-      - notification-service
+      - notification-service1
+      - notification-service2
+      - notification-service3
   mongodb:
     image: mongo:latest
     container_name: mongodb
