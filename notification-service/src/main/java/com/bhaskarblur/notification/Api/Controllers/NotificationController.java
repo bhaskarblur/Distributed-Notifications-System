@@ -82,7 +82,15 @@ public class NotificationController implements iSSEInteractor {
     }
 
     @Override
-    public void UpdateSSE(String txnId, Object data) {
-
+    public void updateSSE(String txnId, Object data) {
+        SseEmitter emitter = emitters.get(txnId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event().name("UPDATE").data(data, MediaType.APPLICATION_JSON));
+            } catch (IOException e) {
+                emitter.completeWithError(e);
+                emitters.remove(txnId);
+            }
+        }
     }
 }

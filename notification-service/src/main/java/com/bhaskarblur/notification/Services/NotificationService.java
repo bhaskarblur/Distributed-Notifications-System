@@ -57,7 +57,7 @@ public class NotificationService implements IKafkaConsumers {
             logger.info("Notifying front end via SSE, Txn Id: {}", notificationMessage.getTxnId());
 
             if (sseInteractor != null) {
-                sseInteractor.UpdateSSE(notificationMessage.getTxnId(), notificationMessage.getNotificationModel());
+                sseInteractor.updateSSE(notificationMessage.getTxnId(), notificationMessage.getNotificationModel());
             }
 
         } catch (Exception e) {
