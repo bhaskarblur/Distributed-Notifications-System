@@ -2,6 +2,7 @@ package com.bhaskarblur.order.Services;
 
 import com.bhaskarblur.order.Kafka.IKafkaConsumers;
 import com.bhaskarblur.order.Kafka.MessageConsumer;
+import com.bhaskarblur.order.Models.OrderMessage;
 import com.bhaskarblur.order.Models.OrderModel;
 import com.bhaskarblur.order.Repositories.OrderRepository;
 import com.bhaskarblur.order.Kafka.MessageProducer;
@@ -40,23 +41,25 @@ public class OrderService implements IKafkaConsumers {
 
     private void createOrder(String orderRequest) {
         try {
-            OrderModel orderModel = gson.fromJson(orderRequest, OrderModel.class);
+            OrderMessage orderMessage = gson.fromJson(orderRequest, OrderMessage.class);
 
-            logger.info("Received createOrder Request: {}", orderModel.getUserId());
+            logger.info("Received createOrder Request for txnId: {}", orderMessage.getTxnId());
 
-            orderModel.setCreatedAt(new Date());
-            orderModel.setStatus("CREATED");
-            orderModel = repository.createOrder(orderModel);
+            orderMessage.getOrderModel().setCreatedAt(new Date());
+            orderMessage.getOrderModel().setStatus("CREATED");
+            orderMessage.setOrderModel(repository.createOrder(orderMessage.getOrderModel()));
 
-            logger.info("Saved Order ID: {}", orderModel.getId());
+            logger.info("Saved Order ID: {}", orderMessage.getOrderModel().getId());
 
             // Manually set each property of post to notificationPayload
             Map<String, Object> notificationPayload = new HashMap<>();
-            notificationPayload.put("type", "ORDER");
-            notificationPayload.put("userId", orderModel.getUserId());
-            notificationPayload.put("title", "Order placed successfully");
-            notificationPayload.put("description", "Your order has been placed at "+ orderModel.getCreatedAt().toString());
-
+            Map<String, Object> notificationMap = new HashMap<>();
+            notificationPayload.put("txnId",orderMessage.getTxnId());
+            notificationMap.put("type", "ORDER");
+            notificationMap.put("userId", orderMessage.getOrderModel().getUserId());
+            notificationMap.put("title", "Order placed successfully");
+            notificationMap.put("description", "Your order has been placed at "+ orderMessage.getOrderModel().getCreatedAt().toString());
+            notificationPayload.put("notificationModel", notificationMap);
             // Convert notification payload to JSON String using Gson
             String notificationJsonString = gson.toJson(notificationPayload);
             logger.info("Sending notification to Kafka: {}", notificationJsonString);

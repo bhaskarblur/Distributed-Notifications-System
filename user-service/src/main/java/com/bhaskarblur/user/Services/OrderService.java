@@ -47,11 +47,12 @@ public class OrderService {
 
             // Prepare the order payload for Kafka message
             Map<String, Object> orderPayload = new HashMap<>();
+            Map<String, Object> orderMap = new HashMap<>();
             orderPayload.put("txnId", orderRequest.getTxn_id());
-            orderPayload.put("userId", orderRequest.getUser_id());
-            orderPayload.put("storeId", orderRequest.getStore_id());
-            orderPayload.put("items", orderRequest.getItems());
-
+            orderMap.put("userId", orderRequest.getUser_id());
+            orderMap.put("storeId", orderRequest.getStore_id());
+            orderMap.put("items", orderRequest.getItems());
+            orderPayload.put("orderModel", orderMap);
             // Convert payload to JSON string using Gson
             String orderJsonString = gson.toJson(orderPayload);
             logger.info("Sending order to Kafka: {}", orderJsonString);
