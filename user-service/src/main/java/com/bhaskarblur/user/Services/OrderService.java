@@ -47,6 +47,7 @@ public class OrderService {
 
             // Prepare the order payload for Kafka message
             Map<String, Object> orderPayload = new HashMap<>();
+            orderPayload.put("txnId", orderRequest.getTxn_id());
             orderPayload.put("userId", orderRequest.getUser_id());
             orderPayload.put("storeId", orderRequest.getStore_id());
             orderPayload.put("items", orderRequest.getItems());

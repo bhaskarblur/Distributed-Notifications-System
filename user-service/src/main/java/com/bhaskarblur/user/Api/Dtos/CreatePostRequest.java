@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Size;
 
 public class CreatePostRequest {
 
+    @NotNull(message = "Transaction id is required")
+    private String txn_id;
+
     @NotNull(message = "User id is required")
     private String user_id;
 
@@ -22,12 +25,21 @@ public class CreatePostRequest {
 
     public CreatePostRequest() {}
 
-    public CreatePostRequest(String user_id, String title, String content, String description) {
+    public CreatePostRequest(String txn_id, String user_id, String title, String content, String description) {
+        this.txn_id = txn_id;
         this.user_id = user_id;
         this.title = title;
         this.content = content;
         this.description = description;
 
+    }
+
+    public @NotNull(message = "Transaction id is required") String getTxn_id() {
+        return txn_id;
+    }
+
+    public void setTxn_id(@NotNull(message = "Transaction id is required") String txn_id) {
+        this.txn_id = txn_id;
     }
 
     public String getUser_id() {

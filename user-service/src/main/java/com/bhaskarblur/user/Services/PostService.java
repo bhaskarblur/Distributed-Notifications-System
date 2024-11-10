@@ -55,12 +55,14 @@ public class PostService {
                     .setDescription(postRequest.getDescription());
 
 
-            // Manually set each property of post to notificationPayload
             Map<String, Object> notificationPayload = new HashMap<>();
-            notificationPayload.put("type", "POST");
-            notificationPayload.put("userId", post.getUserId());
-            notificationPayload.put("title", post.getTitle());
-            notificationPayload.put("description", post.getDescription());
+            Map<String, Object> notificationMap = new HashMap<>();
+            notificationPayload.put("txnId", postRequest.getTxn_id());
+            notificationMap.put("type", "POST");
+            notificationMap.put("userId", post.getUserId());
+            notificationMap.put("title", post.getTitle());
+            notificationMap.put("description", post.getDescription());
+            notificationPayload.put("notificationModel", notificationMap);
 
             // Convert notification payload to JSON String using Gson
             String notificationJsonString = gson.toJson(notificationPayload);

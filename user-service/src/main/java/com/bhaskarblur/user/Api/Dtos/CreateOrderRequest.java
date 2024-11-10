@@ -10,6 +10,9 @@ import java.util.List;
 
 public class CreateOrderRequest {
 
+    @NotNull(message = "Transaction id is required")
+    private String txn_id;
+
     @NotNull(message = "User ID is required")
     private String user_id;
 
@@ -21,6 +24,14 @@ public class CreateOrderRequest {
     private List<Item> items;
 
     // Getters and Setters
+
+    public @NotNull(message = "Transaction id is required") String getTxn_id() {
+        return txn_id;
+    }
+
+    public void setTxn_id(@NotNull(message = "Transaction id is required") String txn_id) {
+        this.txn_id = txn_id;
+    }
 
     public String getUser_id() {
         return user_id;
