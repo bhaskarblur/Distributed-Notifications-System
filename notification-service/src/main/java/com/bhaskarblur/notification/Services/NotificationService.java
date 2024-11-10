@@ -2,13 +2,13 @@ package com.bhaskarblur.notification.Services;
 
 import com.bhaskarblur.notification.Kafka.IKafkaConsumers;
 import com.bhaskarblur.notification.Kafka.MessageConsumer;
+import com.bhaskarblur.notification.Models.NotificationMessage;
 import com.bhaskarblur.notification.Models.NotificationModel;
 import com.bhaskarblur.notification.Repositories.NotificationRepository;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PreDestroy;
 import java.util.Date;
@@ -20,6 +20,13 @@ public class NotificationService implements IKafkaConsumers {
     private final NotificationRepository repository;
     private Gson gson;
     private final MessageConsumer messageConsumer;
+
+    // Responsible for sending updates to SSE
+    private iSSEInteractor sseInteractor;
+
+    public void setSseInteractor(iSSEInteractor sseInteractor) {
+        this.sseInteractor = sseInteractor;
+    }
 
     @Autowired
     public void setGson(Gson gson) {
@@ -37,14 +44,21 @@ public class NotificationService implements IKafkaConsumers {
 
     private void saveNotification(String notificationBody) throws Exception {
         try {
-            NotificationModel notificationModel = gson.fromJson(notificationBody, NotificationModel.class);
+            NotificationMessage notificationMessage = gson.fromJson(notificationBody, NotificationMessage.class);
 
-            logger.info("Received saveNotification Request: {}", notificationModel.getTitle());
+            logger.info("Received saveNotification Request Txn: {}", notificationMessage.getTxnId());
 
-            notificationModel.setCreatedAt(new Date());
-            notificationModel = repository.saveNotification(notificationModel);
+            notificationMessage.getNotificationModel().setCreatedAt(new Date());
+            notificationMessage.setNotificationModel(repository.saveNotification(notificationMessage.getNotificationModel()));
 
-            logger.info("Saved Notification ID: {}", notificationModel.getId());
+            logger.info("Saved Notification ID: {}", notificationMessage.getNotificationModel().getId());
+
+            // Need to notify the listening SSE connection.
+            logger.info("Notifying front end via SSE, Txn Id: {}", notificationMessage.getTxnId());
+
+            if (sseInteractor != null) {
+                sseInteractor.UpdateSSE(notificationMessage.getTxnId(), notificationMessage.getNotificationModel());
+            }
 
         } catch (Exception e) {
             throw new RuntimeException("Error saving notification: " + e.getMessage(), e);
